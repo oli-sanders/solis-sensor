@@ -1,13 +1,63 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
 
+# Control Beta Test
+
+This repo includes a beta version of device control using the same API as the SolisCloud app. This opeartes slighty differently depending on your HMI firmware version. This should be detected automatically.
+
+Please report any issues via https://github.com/fboundy/solis-sensor/issues
+
+## Version 4A00 and Earlier
+
+The following controls should update the inverter immediately:
+
+- Energy Storage Control Switch
+- Overdischarge SOC
+- Force Charge SOC
+- Backup SOC
+
+The timed change controls are all sent to the API using one command and so they won't update untill the Update Charge/Discharge button is pressed. The controls included in this are all three sets of the following (where N is slots 1-3)
+- Timed Charge Current N
+- Timed Charge Start Time N
+- Timed Charge End Time N
+- Timed Discharge Current N
+- Timed Discharge Start Time N
+- Timed Discharge End Time N
+
+<b>Note that all three slots are sent at the same time</b>
+
+## Version 4B00 and Later
+
+Six slots are available and include an SOC limit and a voltage (though the purpose of the voltage is not clear). Only the start and end times for each Charge/Discharge slot need top to be sent to the inverter together so the following are updated immediately (where N is slot 1-6):
+- Energy Storage Control Switch (fewer available modes than pre-4B00)
+- Overdischarge SOC
+- Force Charge SOC
+- Backup SOC
+- Timed Charge Current N
+- Timed Charge SOC N
+- Timed Charge Voltage N
+- Timed Discharge Current N
+- Timed Discharge SOC N
+- Timed Discharge Voltage N
+
+Each pair of start/end times has an associated button pushfor charge there are 6:
+
+- Timed Charge Start Time N
+- Timed Charge End Time N
+- Button Update Charge Time N
+
+And discharge:
+- Timed Discharge Start Time N
+- Timed Discharge End Time N
+- Button Update Discharge Time N
+
 # SolisCloud sensor integration
-HomeAssistant sensor for SolisCloud portal. 
+HomeAssistant sensor for SolisCloud portal.
 Still questions after the readme? Read the [wiki](https://github.com/hultenvp/solis-sensor/wiki) or look at the [discussions page](https://github.com/hultenvp/solis-sensor/discussions)
 
 ## SolisCloud
 >❗The SolisCloud API is known to be unstable and can fail to respond resulting in "no inverter found" issues. See [troubleshooting](#warning--known-limitations) section. Join the discussion [here](https://github.com/hultenvp/solis-sensor/discussions/71) to find out about known limitations and to ask questions.
 
-[SolisCloud](https://www.soliscloud.com/) is the next generation Portal for Solis branded PV systems from Ginlong. 
+[SolisCloud](https://www.soliscloud.com/) is the next generation Portal for Solis branded PV systems from Ginlong.
 
 The new portal requires a key-id, secret and username to function.
 You can obtain key and secret via SolisCloud.
@@ -72,7 +122,7 @@ Not a real limitation, but a feature of the API. It caused by differences of mor
 Just wait, they'll pass. Sometimes minutes, sometimes longer. This can be frustrating however if it happens during configuration.
 
 #### The Chinese error message that translates into "Abnormal data"
-Make sure debug is ON and make confirm you get an error messsage with Chinese text: [custom_components.solis.soliscloud_api] {'Success': True, 'Message': 'OK', 'StatusCode': 200, 'Content': {'success': True, 'code': '1', 'msg': '数据异常 请联系管理员', 'data': None}}. 
+Make sure debug is ON and make confirm you get an error messsage with Chinese text: [custom_components.solis.soliscloud_api] {'Success': True, 'Message': 'OK', 'StatusCode': 200, 'Content': {'success': True, 'code': '1', 'msg': '数据异常 请联系管理员', 'data': None}}.
   * Alternatively copy all files from the [/test folder](https://github.com/hultenvp/solis-sensor/tree/master/test) to a local machine and make sure you have python 3 installed. Edit apitest_async.py, add your key/secret and run the test app with ```python apitest_async.py```. This test will call most API endpoints and return if the call was successful or not. You'll get the same Chinese error message if you have the "Abnormal data" problem.
 
 Users have reported the following options as possible solutions:
@@ -91,23 +141,23 @@ The integration can be configured via the UI.
 <img width="301" alt="image" src="https://user-images.githubusercontent.com/61835400/200194739-68444b7f-7144-4d84-abd0-2ac3bb82ecda.png">
 
 
-**Soliscloud**            
+**Soliscloud**
 * Provide username, key id, secret and station id. If you want to add multiple plants just repeat "add integration" for each plant.
-* To get StationId: 
+* To get StationId:
   1. Log in to [SolisCloud](https://www.soliscloud.com/)
   2. In the Plant Overview tab, under the Plant Name column, Click on your actual plant name, per the screenshot below:
   <img width="301" alt="image" src="https://github.com/hultenvp/solis-sensor/blob/master/image/soliscloud_mainpage.png">
-  
+
   3. Copy the 19-digit number from the URL: https://www.soliscloud.com/#/station/stationdetail_1?id=XXXXXXXXXXXXXXXXXXX and paste it in the station ID field:
   <img width="301" alt="image" src="https://github.com/hultenvp/solis-sensor/blob/master/image/soliscloud_stationdetail.png">
 
 If the plant id in the overview page (https://soliscloud.com/#/station/stationdetail_1?id=xxxxxxxxxxx) is empty then you will get "no inverter found errors. Change the name of the installation by choosing "change information" on the top right of the overview page. After that a plantid is generated.
 
-**Ginlong platform v2 (deprecated, left in for legacy support)**   
+**Ginlong platform v2 (deprecated, left in for legacy support)**
 * Provide username, password and plant id. If you want to add multiple plants just repeat "add integration" for each plant.
 
 # Energy dashboard
-The Solis integration now supports the energy dashboard introduced in Release 2021.8. 
+The Solis integration now supports the energy dashboard introduced in Release 2021.8.
 > Note: This integration requires Home Assistant version 2021.9 or higher
 
 ![dashboard integration](./image/energy_dashboard_integration.GIF)
